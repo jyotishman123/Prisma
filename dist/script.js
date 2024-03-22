@@ -13,10 +13,44 @@ const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        const user = yield prisma.user.create({ data: {
-                name: "PRA"
+        yield prisma.profile.deleteMany();
+        yield prisma.user.deleteMany();
+        const user = yield prisma.user.create({ data: {} });
+        const profile = yield prisma.profile.create({ data: {
+                name: 'jyotishman',
+                userId: user.id
             } });
-        console.log(user);
+        let userOne = yield prisma.user.findUnique({
+            where: {
+                id: user.id
+            },
+            include: {
+                profile: {
+                    select: {
+                        name: true,
+                        id: true
+                    }
+                }
+            }
+        });
+        const userTwo = yield prisma.user.create({
+            data: {
+                profile: {
+                    create: {
+                        name: 'jyo'
+                    }
+                }
+            },
+            include: {
+                profile: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
+        });
+        console.log({ userOne, userTwo });
     });
 }
 main()
